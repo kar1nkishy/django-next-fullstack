@@ -21,10 +21,10 @@ class UserAPITests(APITestCase):
             role="admin"
         )
 
-        self.register_url = "/api/register/"
-        self.login_url = "/api/login/"
-        self.account_url = "/api/account/"
-        self.users_url = "/api/users/"
+        self.register_url = reverse("register")
+        self.login_url = reverse("token_obtain_pair")
+        self.account_url = reverse("account")
+        self.users_url = reverse("user-list")
 
     def test_register_user(self):
         data = {

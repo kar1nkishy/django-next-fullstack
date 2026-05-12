@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, UserSerializer
 from .models import User
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdmin
@@ -29,23 +30,10 @@ class AccountView(APIView):
             "email": user.email,
             "role": user.role
         })
-class UsersListView(APIView):
+
+class UsersListView(ListAPIView):
 
     permission_classes = [IsAuthenticated, IsAdmin]
-
-    def get(self, request):
-
-        users = User.objects.all()
-
-        data = [
-            {
-                "id": u.id,
-                "name": u.name,
-                "email": u.email,
-                "role": u.role
-            }
-            for u in users
-        ]
-
-        return Response(data)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 # Create your views here.
