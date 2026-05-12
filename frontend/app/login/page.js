@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
 import { useState } from "react";
-import axios from "axios";
+import axios from "../../axios";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -10,24 +10,45 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const login = async () => {
+    if (!email || !password) {
+      setError("Email and password required");
+      return;
+    }
+  
+    
     setError("");
+    setLoading(true);
 
     try {
-      const res = await axios.post("http://127.0.0.1:8000/api/login/", {
+      const res = await axios.post("login/", {
         email,
         password,
       });
 
-      localStorage.setItem("Bearer_token", res.data.access);
-
-      window.location.href = "/account";
+      localStorage.setItem("access_token", res.data.access);
+      localStorage.setItem("refresh_token", res.data.refresh);
+  
+      router.push("/account");
     } catch (err) {
       console.log(err.response?.data);
-      setError("Login failed");
+      if (err.response?.data?.detail) {
+        setError(err.response.data.detail);
+      } 
+      else if (err.response?.data) {
+        const firstError = Object.values(err.response.data).flat()[0];
+        setError(firstError || "Invalid credentials");
+      } 
+      else {
+        setError("Login failed. Check your connection.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div style={styles.container}>
@@ -96,4 +117,4 @@ const styles = {
     color: "red",
     fontSize: "14px",
   },
-};
+}; 

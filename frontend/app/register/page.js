@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
+import axios from "../../axios";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
@@ -10,10 +10,11 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
   const register = async () => {
     try {
-      await axios.post("http://127.0.0.1:8000/api/register/", {
+      await axios.post("/register/", {
         name,
         email,
         password,
@@ -21,7 +22,9 @@ export default function RegisterPage() {
 
       router.push("/login");
     } catch (err) {
-      alert("Register failed");
+      if (err.response && err.response.data) {
+        setErrors(err.response.data);
+      }
     }
   };
 
@@ -33,24 +36,36 @@ export default function RegisterPage() {
         <input
           placeholder="Name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            setErrors({ ...errors, name: null });
+          }}
           style={styles.input}
         />
+        {errors.name && <div style={styles.error}>{errors.name.join(", ")}</div>}
 
         <input
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setErrors({ ...errors, email: null });
+          }}
           style={styles.input}
         />
+        {errors.email && <div style={styles.error}>{errors.email.join(", ")}</div>}
 
         <input
           placeholder="Password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setErrors({ ...errors, password: null });
+          }}
           style={styles.input}
         />
+        {errors.password && <div style={styles.error}>{errors.password.join(", ")}</div>}
 
         <button onClick={register} style={styles.button}>
           Register
@@ -92,5 +107,11 @@ const styles = {
     background: "black",
     color: "white",
     cursor: "pointer",
+  },
+  error: {
+    color: "red",
+    fontSize: "12px",
+    marginTop: "4px",
+    textAlign: "left",
   },
 };

@@ -1,19 +1,8 @@
-export default function Home() {
+export default function HomePage() {
   return (
-    <div>
+    <div style={{ padding: 20 }}>
       <h1>Home</h1>
-
-      <img
-        src="/rb.jpg"
-        alt="img"
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          width: "150px",
-          borderRadius: "10px",
-        }}
-      />
+      <p>but without the anime bait</p>
     </div>
   );
 }

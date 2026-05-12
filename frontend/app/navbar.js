@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [token, setToken] = useState(null);
+  const pathname = usePathname();
 
   useEffect(() => {
-    setToken(localStorage.getItem("Bearer_token"));
-  }, []);
+    setToken(localStorage.getItem("access_token")); 
+  }, [pathname]);
 
   const logout = () => {
-    localStorage.removeItem("Bearer_token");
+    localStorage.clear();
     setToken(null);
     window.location.href = "/login";
   };
@@ -39,10 +41,7 @@ export default function Navbar() {
       ) : (
         <>
           <Link href="/account" style={itemStyle}>Account</Link>
-
-          <button onClick={logout} style={itemStyle}>
-            Logout
-          </button>
+          <button onClick={logout} style={itemStyle}>Logout</button>
         </>
       )}
     </div>
