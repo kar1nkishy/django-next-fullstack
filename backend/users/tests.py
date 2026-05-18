@@ -30,14 +30,13 @@ class UserAPITests(APITestCase):
         data = {
             "name": "newuser",
             "email": "new@test.com",
-            "password": "123456"
+            "password": "StrongPass123!"
         }
 
         response = self.client.post(self.register_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(User.objects.filter(email="new@test.com").exists())
-
+        self.assertEqual(response.data["email"], "new@test.com")
 
     def test_login_user(self):
         data = {

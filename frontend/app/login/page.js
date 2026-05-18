@@ -33,17 +33,33 @@ export default function LoginPage() {
   
       router.push("/account");
     } catch (err) {
-      console.log(err.response?.data);
-      if (err.response?.data?.detail) {
-        setError(err.response.data.detail);
-      } 
-      else if (err.response?.data) {
-        const firstError = Object.values(err.response.data).flat()[0];
-        setError(firstError || "Invalid credentials");
-      } 
-      else {
-        setError("Login failed. Check your connection.");
+
+      console.log('Login error status:', err.response?.status, 'data:', err.response?.data);
+      const data = err.response?.data;
+      let message = 'Incorrect email or password';
+      if (typeof data === 'string') {
+        message = data;
+      } else if (data?.detail) {
+        message = String(data.detail);
+      } else if (Array.isArray(data)) {
+        message = String(data[0] || message);
+      } else if (data && typeof data === 'object') {
+        const firstError = Object.values(data).flat()[0];
+        message = String(firstError || message);
       }
+
+      const lower = message.toLowerCase();
+      if (
+        lower.includes('no active account') ||
+        lower.includes('given credentials') ||
+        lower.includes('unable to log in') ||
+        lower.includes('invalid credentials')
+      ) {
+        message = 'Incorrect password or username';
+      }
+
+      console.log('Login error message to show:', message);
+      setError(message);
     } finally {
       setLoading(false);
     }

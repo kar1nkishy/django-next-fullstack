@@ -1,31 +1,38 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/', // Указываем базовый URL для всех запросов
+    baseURL: 'http://127.0.0.1:8000/api/',
 });
 
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            const url = originalRequest.url || '';
+            if (url.includes('login') || url.includes('register') || url.includes('refresh') || url.includes('token')) {
+                return Promise.reject(error);
+            }
 
-        if (error.response && error.response.status === 401 && !originalRequest._retry && !originalRequest.url.includes('token/refresh')) {
             originalRequest._retry = true;
+            const refreshToken = localStorage.getItem('refresh_token');
+            if (!refreshToken) {
+                return Promise.reject(error);
+            }
+
             try {
-                const refreshToken = localStorage.getItem('refresh_token');
-                
-                const res = await axios.post('http://127.0.0/token/refresh/', {
+                const res = await api.post('refresh/', {
                     refresh: refreshToken
                 });
-                
+
                 const newAccessToken = res.data.access;
                 localStorage.setItem('access_token', newAccessToken);
 
                 originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                 return api(originalRequest);
             } catch (refreshError) {
-                localStorage.clear();
-                window.location.href = '/login';
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
                 return Promise.reject(refreshError);
             }
         }
