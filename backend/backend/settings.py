@@ -10,14 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = "users.User"
 CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
+
+
+load_dotenv()
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -31,7 +37,8 @@ DEBUG = config("DEBUG", cast=bool)
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 
-ALLOWED_HOSTS = ['*']
+_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [h.strip() for h in _hosts.split(",") if h.strip()]
 
 
 # Application definition

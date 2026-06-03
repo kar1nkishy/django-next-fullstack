@@ -4,23 +4,18 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
       - sqlite_data:/app/db_volume
-    environment:
-      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./backend/.env 
 
   frontend:
     build: ./frontend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    environment:
-      - WATCHPACK_POLLING=true
-      - NEXT_TELEMETRY_DISABLED=1
-      - __NEXT_DISABLE_HMR_ERROR_WARNING=true
+    env_file:
+      - ./frontend/.env 
+    depends_on:
+      - backend
 
 volumes:
   sqlite_data:
